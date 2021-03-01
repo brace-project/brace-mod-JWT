@@ -1,5 +1,5 @@
 {
-  "name": "brace/brace-mod-jwt",
+  "name": "brace/mod-jwt",
   "type": "library",
   "description": "JWT Component for Brace App Framework",
   "keywords": [
