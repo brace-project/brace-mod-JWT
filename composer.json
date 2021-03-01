@@ -1,0 +1,39 @@
+{
+  "name": "brace/brace-mod-jwt",
+  "type": "library",
+  "description": "JWT Component for Brace App Framework",
+  "keywords": [
+    "JWT"
+  ],
+  "homepage": "https://infracamp.org",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jan Zimmermann",
+      "email": "jan@ueberruhr.de"
+    }
+  ],
+  "require": {
+    "brace/core": "dev-main"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Brace\\JWT\\": "src"
+    },
+    "files": [
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\": "test"
+    }
+  },
+  "minimum-stability": "dev",
+  "extra": {
+    "branch-alias": {
+    }
+  }
+}
