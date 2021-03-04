@@ -1,6 +1,6 @@
 <?php
 
-namespace Brace\OAuth;
+namespace Brace\OpenIDConnect;
 
 use Brace\Core\Base\BraceAbstractMiddleware;
 use Brace\Session\Session;
@@ -11,12 +11,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class OAuthMiddleware extends BraceAbstractMiddleware
+class OIDCMiddleware extends BraceAbstractMiddleware
 {
     public const JWT_ATTRIBUTE = 'jwt';
 
     public function __construct(
-        private OAuthClient $client,
+        private OIDClient $client,
         private string $openIDHost,
     ) {
     }
@@ -33,7 +33,7 @@ class OAuthMiddleware extends BraceAbstractMiddleware
 
         if (!$this->isAuthenticated($request, $session)) {
             return $this->redirect(
-                $this->client->config[OAuthClient::AUHTORIZATION_ENDPOINT],
+                $this->client->config[OIDClient::AUHTORIZATION_ENDPOINT],
                 [
                     "client_id" => $this->client->getClientID(),
                     "response_type" => "id_token",
@@ -61,7 +61,7 @@ class OAuthMiddleware extends BraceAbstractMiddleware
         //OauthBearerToken
         //Webserver -> WebAPI
         //bekommt Token & RefreshToken
-        $tokenEndpoint = $this->client->config[OAuthClient::TOKEN_ENDPOINT] ?? null;
+        $tokenEndpoint = $this->client->config[OIDClient::TOKEN_ENDPOINT] ?? null;
         if ($tokenEndpoint === null) {
             //Todo: throw Exception ??
         }

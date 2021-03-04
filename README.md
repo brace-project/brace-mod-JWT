@@ -1,18 +1,18 @@
 
-[![Action Status](https://github.com/brace-project/brace-mod-oauth/workflows/test/badge.svg)](https://github.com/brace-project/brace-mod-oauth/actions)
-[![Latest Stable Version](https://poser.pugx.org/brace/mod-oauth/v)](//packagist.org/packages/brace/mod-oauth)
-[![Total Downloads](https://poser.pugx.org/brace/mod-oauth/downloads)](//packagist.org/packages/brace/mod-oauth)
-[![License](https://poser.pugx.org/brace/mod-oauth/license)](//packagist.org/packages/brace/mod-oauth)
+[![Action Status](https://github.com/brace-project/brace-mod-oidc/workflows/test/badge.svg)](https://github.com/brace-project/brace-mod-oidc/actions)
+[![Latest Stable Version](https://poser.pugx.org/brace/mod-oidc/v)](//packagist.org/packages/brace/mod-oidc)
+[![Total Downloads](https://poser.pugx.org/brace/mod-oidc/downloads)](//packagist.org/packages/brace/mod-oidc)
+[![License](https://poser.pugx.org/brace/mod-oidc/license)](//packagist.org/packages/brace/mod-oidc)
 
 
-# brace-mod-OAuth
+# brace-mod-OIDC
 
-OAuth middleware for Brace Core Applications
+OpenID Connect middleware for Brace Core Applications
 
 ### Installation
 
 ```sh
-composer require brace/mod-oauth
+composer require brace/mod-oidc
 ```
 
 ### Links

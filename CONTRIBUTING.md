@@ -10,7 +10,7 @@
 To install the project and run the tests, you need to clone it first:
 
 ```sh
-$ git clone git@github.com:brace-project/brace-mod-oauth.git
+$ git clone git@github.com:brace-project/brace-mod-oidc.git
 ```
 
 You will then need to install [kickstart](http://nfra.infracamp.org/) to run the test:

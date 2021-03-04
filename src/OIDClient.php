@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Brace\OAuth;
+namespace Brace\OpenIDConnect;
 
 
 use Exception;
@@ -9,7 +9,7 @@ use JetBrains\PhpStorm\Pure;
 use Phore\Core\Exception\InvalidDataException;
 use Phore\HttpClient\Ex\PhoreHttpRequestException;
 
-class OAuthClient
+class OIDClient
 {
     public const AUHTORIZATION_ENDPOINT = "authorization_endpoint";
     public const TOKEN_ENDPOINT = "token_endpoint";

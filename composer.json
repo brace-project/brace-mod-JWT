@@ -1,9 +1,9 @@
 {
-  "name": "brace/mod-oauth",
+  "name": "brace/mod-oidc",
   "type": "library",
-  "description": "OAuth Component for Brace App Framework",
+  "description": "OpenID Connect Middleware Component for Brace App Framework",
   "keywords": [
-    "OAuth","OpenID Connect","JWT"
+    "OpenID Connect","OIDC"
   ],
   "homepage": "https://infracamp.org",
   "license": "MIT",
@@ -23,7 +23,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Brace\\OAuth\\": "src"
+      "Brace\\OpenIDConnect\\": "src"
     },
     "files": [
     ]

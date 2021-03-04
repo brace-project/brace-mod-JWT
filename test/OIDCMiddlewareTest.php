@@ -2,10 +2,9 @@
 
 namespace Test;
 
-use Brace\JWT\JwtAuthMiddleware;
 use PHPUnit\Framework\TestCase;
 
-class JwtAuthMiddlewareTest extends TestCase
+class OIDCMiddlewareTest extends TestCase
 {
     public function testTest(): void
     {
