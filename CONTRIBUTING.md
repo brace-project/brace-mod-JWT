@@ -10,7 +10,7 @@
 To install the project and run the tests, you need to clone it first:
 
 ```sh
-$ git clone git@github.com:brace-project/brace-mod-jwt.git
+$ git clone git@github.com:brace-project/brace-mod-oauth.git
 ```
 
 You will then need to install [kickstart](http://nfra.infracamp.org/) to run the test:
@@ -24,7 +24,11 @@ $ kickstart
 The PHPUnit version to be used is the one installed as a dev- dependency via composer:
 
 ```sh
+-> without Coverage Report:
 $ kick test 
+
+-> with Coverage Report:
+$ kick testCoverage
 ```
 
 Accepted coverage for new contributions is 80%. Any contribution not satisfying this requirement

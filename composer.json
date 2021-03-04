@@ -1,9 +1,9 @@
 {
-  "name": "brace/mod-jwt",
+  "name": "brace/mod-oauth",
   "type": "library",
-  "description": "JWT Component for Brace App Framework",
+  "description": "OAuth Component for Brace App Framework",
   "keywords": [
-    "JWT"
+    "OAuth","OpenID Connect","JWT"
   ],
   "homepage": "https://infracamp.org",
   "license": "MIT",
@@ -14,14 +14,16 @@
     }
   ],
   "require": {
-    "brace/core": "dev-main"
+    "brace/core": "dev-main",
+    "firebase/php-jwt": "dev-master",
+    "brace/mod-session": "dev-main"
   },
   "require-dev": {
     "phpunit/phpunit": "*"
   },
   "autoload": {
     "psr-4": {
-      "Brace\\JWT\\": "src"
+      "Brace\\OAuth\\": "src"
     },
     "files": [
     ]
