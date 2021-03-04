@@ -15,6 +15,11 @@ OAuth middleware for Brace Core Applications
 composer require brace/mod-oauth
 ```
 
+### Links
+
+https://docs.microsoft.com/de-de/azure/active-directory/develop/v2-protocols-oidc
+https://openid.net/specs/openid-connect-discovery-1_0.html
+
 ### Usage
 
 ### Examples
