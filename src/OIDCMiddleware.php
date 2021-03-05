@@ -5,15 +5,17 @@ namespace Brace\OpenIDConnect;
 use Brace\Core\Base\BraceAbstractMiddleware;
 use Brace\Session\Session;
 use Brace\Session\SessionMiddleware;
+use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Phore\Di\Container\Producer\DiService;
+use Phore\HttpClient\Ex\PhoreHttpRequestException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class OIDCMiddleware extends BraceAbstractMiddleware
 {
-    public const JWT_ATTRIBUTE = 'jwt';
+    public const ID_TOKEN_ATTRIBUTE = 'id_token';
 
     public function __construct(
         private OIDClient $client,
@@ -22,72 +24,33 @@ class OIDCMiddleware extends BraceAbstractMiddleware
     }
 
     //Todo: DOKUMENTATION !!! wenn Session benutzt wird dann muss es nach dieser Definiert werden
-    //OpenID Connect for user Atuhentication
-    //machen wir jetzt Oauht 2.0 oder OpenIDConnect
-    //OAuth2.0 nämlich nur Autorisierungsprotokoll
-    //OpenID Connect erweiterung als Authentifizierungsprotokoll (identity layer on top of the OAuth2.0)
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         /* @var $session Session */
         $session = $this->app->get(SessionMiddleware::SESSION_ATTRIBUTE);
 
         if (!$this->isAuthenticated($request, $session)) {
-            return $this->redirect(
-                $this->client->config[OIDClient::AUHTORIZATION_ENDPOINT],
-                [
-                    "client_id" => $this->client->getClientID(),
-                    "response_type" => "id_token",
-                    "redirect_uri" => "", //Todo: aktuelle Route
-                    "scope" => $this->client->getScopesAsOneString(),
-                    "state" => phore_random_str(), //Todo: muss vorher in Session gespeichert werden
-                    "nonce" => phore_random_str()  //Todo: muss vorher in Session gespeichert werden
-                ]
-            );
+            return $this->authenticate();
         }
+
         // wird das Token überhaupt verändert wenn ja wie ?
         $this->app->define(
-            self::JWT_ATTRIBUTE,
+            self::ID_TOKEN_ATTRIBUTE,
             new DiService(
-                function () use () {
-                    return; //Todo: id_token weiterreichen/ und wenn ja Token oder Decoded Payload ?
+                function () use ($idToken) {
+                    return JWT::jsonDecode(
+                        $idToken
+                    ); //Todo: id_token weiterreichen/ und wenn ja Token oder Decoded Payload ?
                 }
             )
         );
 
-        //Bis hier hin nur um zu gucken ob der Nutzer überhaupt angemeldet ist
-        //Nun gucken auf welchen Teil der Api er zugreifen kann dazu fragt der Webserver beim Token Endpoint ein Token an
-        //das nur er behält und der Nutzer nicht bekommt
-
-        //OauthBearerToken
-        //Webserver -> WebAPI
-        //bekommt Token & RefreshToken
-        $tokenEndpoint = $this->client->config[OIDClient::TOKEN_ENDPOINT] ?? null;
-        if ($tokenEndpoint === null) {
-            //Todo: throw Exception ??
+        if (!$this->isAuthorized()) {
+            //Todo: return Permission denied
         }
-        $tokenEndpointData = phore_http_request($this->openIDHost . $tokenEndpoint)
-            ->withQueryParams(
-                [
-                    "access_token" => "",
-                    "token_type" => "Bearer",
-                    "expires_in" => 1234
-                ]
-            )
-            ->send()
-            ->getBodyJson();
 
-        //send Request an TokenEndpoint
-
-
-
-
-        $response = $handler->handle($request);
-
-        $session->set("id_token", $idToken);
-        //hier wahrschienlich nochmal token in Session speichern ?
-        //wenn Token verändert muss es dann nicht auch an einen header gehängt werden ?
-
-        return $response;
+        return $handler->handle($request);
     }
 
     /**
@@ -112,9 +75,11 @@ class OIDCMiddleware extends BraceAbstractMiddleware
 
         //verify Token
         $token = $queryParams['id_token'];
-        $jwt = new JWT();
-        $publicKey = $this->getPublicKey();// Todo: woher public key ?
-        $idTokenPayload = $jwt::decode($token, $publicKey);
+        $jwk = $this->client->getJWK();
+        $idTokenPayload = JWT::decode(
+            $token,
+            JWK::parseKeySet($jwk)
+        ); // Todo: $supportedAlgos -> welche value aus wellknown config
         //Todo: müssen weiter Ansprüche überprüft werden ?
 
         //state überprüfen
@@ -134,7 +99,74 @@ class OIDCMiddleware extends BraceAbstractMiddleware
         return true;
     }
 
-    private function redirect(string $endpoint, array $params): ResponseInterface
+    /**
+     * @return bool
+     * @throws PhoreHttpRequestException
+     */
+    private function isAuthorized(): bool
     {
+        $tokenEndpoint = $this->client->getConfig[OIDClient::TOKEN_ENDPOINT] ?? null;
+        if ($tokenEndpoint === null) {
+            //Todo: throw Exception ??
+        }
+        //bekommt Token & RefreshToken //Todo: wofür Refreshtoken ?
+        $oAuthBearerToken = phore_http_request($this->openIDHost . $tokenEndpoint)
+            ->withQueryParams(
+                [
+
+                ]
+            )
+            ->send()
+            ->getBodyJson();
+        //mit dem Token fragt Webserver -> WebAPI
+
+
+        //isAuthorized
+        return true;
+    }
+
+    /**
+     *
+     *
+     * @param Session $session
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    private function authenticate(Session $session, ServerRequestInterface $request): ResponseInterface
+    {
+        $state = phore_random_str();
+        $nonce = phore_random_str();
+        $session->set('state', $state);
+        $session->set('nonce', $nonce); //Todo: wird die Session dann trotzdem persistiert
+        $endpoint = $this->client->getConfig()[OIDClient::AUHTORIZATION_ENDPOINT] ?? null;
+        if ($endpoint === null) {
+            //Todo: was wenn das null ?
+        }
+        return $this->redirectResponse(
+            $endpoint,
+            [
+                "client_id" => $this->client->getClientID(),
+                "response_type" => "id_token token",
+                "redirect_uri" => $request->getUri(),
+                "response_mode" => "form_post",
+                "scope" => $this->client->getScopesAsOneString(),
+                "state" => $state,
+                "nonce" => $nonce
+            ]
+        );
+    }
+
+    /**
+     * redirects the response to the given $endpoint with the given $params
+     *
+     * @param string $endpoint
+     * @param array $params
+     * @return ResponseInterface
+     */
+    private function redirectResponse(string $endpoint, array $params = []): ResponseInterface
+    {
+        $response = $this->app->responseFactory->createResponse();
+        $response = $response->withHeader('Location', $endpoint . '?' . http_build_query($params));
+        return $response;
     }
 }

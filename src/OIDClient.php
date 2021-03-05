@@ -1,12 +1,8 @@
 <?php
 
-
 namespace Brace\OpenIDConnect;
 
-
-use Exception;
 use JetBrains\PhpStorm\Pure;
-use Phore\Core\Exception\InvalidDataException;
 use Phore\HttpClient\Ex\PhoreHttpRequestException;
 
 class OIDClient
@@ -18,7 +14,7 @@ class OIDClient
     public const USERINFO_ENDPOINT = "userinfo_endpoint";
     public const SUBJECT_TYPES_SUPPORTED = "subject_types_supported";
     private const OPENIDCONFIG_PATH = "/.well-known/openid-configuration";
-    public array $config;
+    private array $config;
 
     public function __construct(
         private string $clientId,
@@ -47,6 +43,19 @@ class OIDClient
         }
     }
 
+    public function getJWK(): array
+    {
+        try {
+            return $this->config = phore_http_request(
+                self::JWKS_URI
+            )
+                ->send()
+                ->getBodyJson();
+        } catch (PhoreHttpRequestException $e) {
+            //Todo: was wenn nicht erreichbar ?
+        }
+    }
+
     /**
      * Returns all scopes as a space-separated list of scopes
      *
@@ -63,5 +72,13 @@ class OIDClient
     public function getClientID(): string
     {
         return $this->clientId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
     }
 }
